@@ -1,24 +1,79 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { Helmet } from "react-helmet";
+import { Button, Input } from "semantic-ui-react";
+import ReactAudioPlayer from "react-audio-player";
+
+import "./App.css";
+
+async function getInfo(streamURLString: string) {
+  const streamURL = new URL(streamURLString);
+
+  const statsURLString = `${streamURL.protocol}//${streamURL.host}/status-json.xsl`;
+
+  const mountPoint = streamURL.pathname.slice(1);
+
+  const stats = await fetch(statsURLString);
+
+  if (stats.body) {
+    const statsJSON = await stats.json();
+    console.log(statsJSON);
+    for (const source of statsJSON.icestats.source) {
+      if (source.server_name === mountPoint) {
+        return { artist: source.artist as (string | undefined), title: source.title as string };
+      }
+    }
+  }
+
+  return {artist: undefined, title: ''};
+}
 
 function App() {
+  const [url, setURL] = useState("");
+  const [urlText, setURLText] = useState(
+    "https://radio.rtrance.com/mixcomp.ogg"
+  );
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [metadata, setMetadata] = useState<{artist?: string, title: string}>({artist: undefined, title: ''})
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Helmet>
+        <link
+          rel="stylesheet"
+          href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
+        />
+      </Helmet>
+
+      <Input
+        onChange={(event) => setURLText(event.target.value)}
+        placeholder="Stream URL"
+        value={urlText}
+      />
+      <Button onClick={() => setURL(urlText)}>Go</Button>
+      <br />
+
+      <ReactAudioPlayer
+        src={url}
+        autoPlay
+        controls
+        listenInterval={1000}
+        onListen={async (event) => {
+          const time = (event as unknown) as number;
+          setElapsedTime(time);
+
+          if (time % 20.0 < 1.0) {
+            const info = await getInfo(url);
+            setMetadata(info);
+          }
+        }
+      }
+      />
+      <br />
+      {`${Math.floor(elapsedTime / 60.0)}:${(elapsedTime % 60.0)
+        .toFixed(0)
+        .padStart(2, "0")}`}
+      <br />
+      {metadata.artist === undefined ? metadata.title : `${metadata.artist} - ${metadata.title}`}
     </div>
   );
 }
