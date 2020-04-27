@@ -5,6 +5,12 @@ import ReactAudioPlayer from "react-audio-player";
 
 import "./App.css";
 
+function formatElapsedTime(elapsedTime: number) {
+  return `${Math.floor(elapsedTime / 60.0)}:${(elapsedTime % 60.0)
+    .toFixed(0)
+    .padStart(2, "0")}`;
+}
+
 async function getInfo(streamURLString: string) {
   const streamURL = new URL(streamURLString);
 
@@ -19,7 +25,7 @@ async function getInfo(streamURLString: string) {
       const statsJSON = await stats.json();
       console.log(statsJSON);
       for (const source of statsJSON.icestats.source) {
-        if (source.server_name === mountPoint) {
+        if ((source.listenurl as string).endsWith(mountPoint)) {
           return {
             artist: source.artist as string | undefined,
             title: source.title as string,
@@ -53,7 +59,6 @@ function App() {
           href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
         />
       </Helmet>
-
       <Input
         onChange={(event) => setURLText(event.target.value)}
         placeholder="Stream URL"
@@ -61,7 +66,6 @@ function App() {
       />
       <Button onClick={() => setURL(urlText)}>Go</Button>
       <br />
-
       {url.length > 0 && (
         <ReactAudioPlayer
           src={url}
@@ -80,15 +84,10 @@ function App() {
         />
       )}
       <br />
-      {/*
-      {`${Math.floor(elapsedTime / 60.0)}:${(elapsedTime % 60.0)
-        .toFixed(0)
-        .padStart(2, "0")}`}
-      <br />
-      */}
       {metadata.artist === undefined
         ? metadata.title
-        : `${metadata.artist} - ${metadata.title}`}
+        : `${metadata.artist} - ${metadata.title}`}{" "}
+      ({formatElapsedTime(elapsedTime)})
     </div>
   );
 }
