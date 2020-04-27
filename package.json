@@ -41,6 +41,19 @@
   },
   "devDependencies": {
     "@types/react-audio-player": "^0.11.0",
-    "@types/react-helmet": "^5.0.15"
-  }
+    "@types/react-helmet": "^5.0.15",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.1.7",
+    "prettier": "^2.0.5"
+  },
+    "husky": {
+          "hooks": {
+                "pre-commit": "lint-staged"
+          }
+    },
+             "lint-staged": {
+                   "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+                         "prettier --write"
+                   ]
+             }
 }
