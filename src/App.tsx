@@ -14,17 +14,24 @@ async function getInfo(streamURLString: string) {
 
   const stats = await fetch(statsURLString);
 
-  if (stats.body) {
-    const statsJSON = await stats.json();
-    console.log(statsJSON);
-    for (const source of statsJSON.icestats.source) {
-      if (source.server_name === mountPoint) {
-        return { artist: source.artist as (string | undefined), title: source.title as string };
+  try {
+    if (stats.body) {
+      const statsJSON = await stats.json();
+      console.log(statsJSON);
+      for (const source of statsJSON.icestats.source) {
+        if (source.server_name === mountPoint) {
+          return {
+            artist: source.artist as string | undefined,
+            title: source.title as string,
+          };
+        }
       }
     }
+  } catch (err) {
+    console.warn("Could not fetch stream metadata", err);
   }
 
-  return {artist: undefined, title: ''};
+  return { artist: undefined, title: "" };
 }
 
 function App() {
@@ -33,7 +40,10 @@ function App() {
     "https://radio.rtrance.com/mixcomp.ogg"
   );
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [metadata, setMetadata] = useState<{artist?: string, title: string}>({artist: undefined, title: ''})
+  const [metadata, setMetadata] = useState<{ artist?: string; title: string }>({
+    artist: undefined,
+    title: "",
+  });
 
   return (
     <div className="App">
@@ -52,28 +62,33 @@ function App() {
       <Button onClick={() => setURL(urlText)}>Go</Button>
       <br />
 
-      <ReactAudioPlayer
-        src={url}
-        autoPlay
-        controls
-        listenInterval={1000}
-        onListen={async (event) => {
-          const time = (event as unknown) as number;
-          setElapsedTime(time);
+      {url.length > 0 && (
+        <ReactAudioPlayer
+          src={url}
+          autoPlay
+          controls
+          listenInterval={1000}
+          onListen={async (event) => {
+            const time = (event as unknown) as number;
+            setElapsedTime(time);
 
-          if (time % 20.0 < 1.0) {
-            const info = await getInfo(url);
-            setMetadata(info);
-          }
-        }
-      }
-      />
+            if (time % 20.0 < 1.0) {
+              const info = await getInfo(url);
+              setMetadata(info);
+            }
+          }}
+        />
+      )}
       <br />
+      {/*
       {`${Math.floor(elapsedTime / 60.0)}:${(elapsedTime % 60.0)
         .toFixed(0)
         .padStart(2, "0")}`}
       <br />
-      {metadata.artist === undefined ? metadata.title : `${metadata.artist} - ${metadata.title}`}
+      */}
+      {metadata.artist === undefined
+        ? metadata.title
+        : `${metadata.artist} - ${metadata.title}`}
     </div>
   );
 }
