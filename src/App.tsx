@@ -59,12 +59,20 @@ function App() {
           href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
         />
       </Helmet>
+      {/*
       <Input
         onChange={(event) => setURLText(event.target.value)}
         placeholder="Stream URL"
         value={urlText}
       />
       <Button onClick={() => setURL(urlText)}>Go</Button>
+      */}
+      <Button onClick={() => setURL("https://radio.rtrance.com/mixcomp.ogg")}>
+        Listen (OGG)
+      </Button>
+      <Button onClick={() => setURL("https://radio.rtrance.com/mixcomp.mp3")}>
+        Listen (MP3)
+      </Button>
       <br />
       {url.length > 0 && (
         <ReactAudioPlayer
