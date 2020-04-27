@@ -67,6 +67,11 @@ function App() {
       />
       <Button onClick={() => setURL(urlText)}>Go</Button>
       */}
+      <h3>r/trance March 2020 mixcomp web player!</h3>
+      <p>
+        OGG stream recommended if your browser supports it (i.e. not Safari).
+      </p>
+      <br />
       <Button onClick={() => setURL("https://radio.rtrance.com/mixcomp.ogg")}>
         Listen (OGG)
       </Button>
