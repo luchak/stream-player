@@ -37,7 +37,7 @@ async function getInfo(streamURLString: string) {
 function App() {
   const [url, setURL] = useState("");
   const [urlText, setURLText] = useState(
-    "https://radio.rtrance.com/mixcomp.ogg"
+    "https://radio.rtrance.com/mixcomp.mp3"
   );
   const [elapsedTime, setElapsedTime] = useState(0);
   const [metadata, setMetadata] = useState<{ artist?: string; title: string }>({
